@@ -34,12 +34,15 @@ class Rocket{
         console.log(fileHash);
         const newFileHashedobjectPath = path.join(this.objectsPath,fileHash); // .rocket/objects/xyz123
         await fs.writeFile(newFileHashedobjectPath,fileData);
-        // TODO : add the file to staging area
+        await this.updateStagingArea(filePath,fileHash);
         console.log(`Added ${fileToBeAdded} `);
     }
 
     async updateStagingArea(filePath,fileHash){
         const index = JSON.parse(await fs.readFile(this.indexPath,{encoding:'utf-8'}));
+
+        index.push({path:filePath,hash:fileHash});
+        await fs.writeFile(this.indexPath,JSON.stringify(index));
     }
 }
 
