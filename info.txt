@@ -1,0 +1,8 @@
+Our own VCS - Rocket
+
+- init              - it creates a .git folder and starts maintaining
+- add files         - (Hashing)
+- commit <messages> - (Hashing)
+- log 
+- show <commit>
+
