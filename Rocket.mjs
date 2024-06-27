@@ -70,10 +70,66 @@ class Rocket{
             return null;
         }   
     }
+
+    async log(){
+        let currentCommitHash = await this.getCurrentHead();
+        while(currentCommitHash){
+            const commitData = JSON.parse(await fs.readFile(path.join(this.objectsPath,currentCommitHash),{encoding:'utf-8'}));
+            console.log(`____________________________________________\n`);
+            console.log(`Commit: ${currentCommitHash}\nDate:${commitData.timeStamp}\n${commitData.message}\n\n`);
+
+            currentCommitHash = commitData.parent;
+        }
+    }
+
+    // async showCommitDiff(commitHash){
+    //     const commitData = JSON.parse(await this.getCommitData(commitHash));
+    //     if(!commitData){
+    //         console.log("Commit not found");
+    //         return;
+    //     }
+    //     console.log("Changes in last commit are:");
+
+    //     for(const file of commitData.files){
+    //         console.log(`File : ${file.path}`);
+    //         const fileContent = await this.getFileContent(file.hash);
+    //         console.log(fileContent);
+
+    //         if(commitData.parent){
+    //             //get parent commit data
+    //             const parentCommitData = JSON.parse(await this.getCommitData(commitData.parent));
+    //             const parentFileContent = await this.getParentFileContent(parentCommitData,file.indexPath)
+    //         }
+    //     }
+    // }
+
+    // async getParentFileContent(parentCommitData,filePath){
+    //     const parentFile = parentCommitData.files.find(file => file.path === filePath)
+    //     if(parentFile){
+    //         //get the file content from the parent commit and return the content
+    //         return await this.getFileContent(parentFile.hash)
+    //     }
+    // }
+
+    async getCommitData(commitHash){
+        const commitPath = path.join(this.objectsPath,commitHash);
+        try{
+            return await fs.readFile(commitPath,{encoding:'utf-8'});
+        }catch(error){
+            console.log("Failed to read the commit data",error);
+            return null;
+        }
+    }
+
+    async getFileContent(fileHash){
+        const objectPath = path.join(this.objectsPath,fileHash);
+        return fs.readFile(objectPath,{encoding:'utf-8'});
+    }
 }
 
 (async()=>{
     const rocket = new Rocket();
     await rocket.add('sample.txt');
-    await rocket.commit('initial commit');
+    await rocket.commit('second initial commit');
+    await rocket.log();
 })();   
